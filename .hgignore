@@ -1,0 +1,12 @@
+# globales
+syntax: glob
+*.pyc
+*~
+*.obj
+*.bin
+*.exe
+*.lst
+
+# expresiones regulares
+#syntax: regexp
+#^\.pc/
