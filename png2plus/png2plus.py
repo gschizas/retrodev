@@ -6,7 +6,7 @@ png2plus
 (c) MML, 2009
 """
 
-# Notas: Sin compresión (mejor usar un compresor externo)
+# TODO: Integrar la compresión.
 
 # Parches para que funcione en python 2.5
 from __future__ import with_statement
@@ -17,20 +17,13 @@ import glob         # glob() expande los patrones de los ficheros en windows
 import Image
 from optparse import make_option, OptionParser
 
-# Marcadores de compresión
-CMP_COPY = 0x00
-CMP_SKIP = 0x50
-CMP_REPEAT = 0xA0
-CMP_END_SCANLINE = 0xFD
-CMP_END_SCREEN = 0xFE
-
 # Ancho en pixels de un byte según la resolución del CPC
 pixels_por_byte = (2, 4, 8)
 
 # Funciones de conversión de las imagenes
 def extrae_imagen(fichero_imagen, modo_imagen, ancho_imagen, alto_imagen):
     """
-    Extrae la imagen cruda de la imagen
+    Extrae las capas RGB de la imagen
     """
     capa_rojo = capa_verde = capa_azul = ""
     imagen_tmp = list(fichero_imagen.getdata())
@@ -52,52 +45,52 @@ def convierte_graficos(cadena, ppb):
     cadena_final = ""
     for i in range(len(cadena) // ppb):
         if ppb == 2:
-            byte_tmp0 = cadena[i * ppb]
-            byte_tmp1 = cadena[i * ppb + 1]
+            byte_tmp0 = ord(cadena[i * ppb])
+            byte_tmp1 = ord(cadena[i * ppb + 1])
             # p1b3->b0 p1b2->b4
             # p1b1->b2 p1b0->b6
             # p0b3->b1 p0b2->b5
             # p0b1->b3 p0b0->b7
-            byte_tmp = chr(((ord(byte_tmp1) & 0x08) >> 3) | ((ord(byte_tmp1) & 0x04) << 2) | \
-                        ((ord(byte_tmp1) & 0x02) << 1) | ((ord(byte_tmp1) & 0x01) << 6) | \
-                        ((ord(byte_tmp0) & 0x08) >> 2) | ((ord(byte_tmp0) & 0x04) << 3) | \
-                        ((ord(byte_tmp0) & 0x02) << 2) | ((ord(byte_tmp0) & 0x01) << 7))
+            byte_tmp = chr(((byte_tmp1 & 0x08) >> 3) | ((byte_tmp1 & 0x04) << 2) | \
+                        ((byte_tmp1 & 0x02) << 1) | ((byte_tmp1 & 0x01) << 6) | \
+                        ((byte_tmp0 & 0x08) >> 2) | ((byte_tmp0 & 0x04) << 3) | \
+                        ((byte_tmp0 & 0x02) << 2) | ((byte_tmp0 & 0x01) << 7))
         elif ppb == 4:
-            byte_tmp0 = cadena[i * ppb]
-            byte_tmp1 = cadena[i * ppb + 1]
-            byte_tmp2 = cadena[i * ppb + 2]
-            byte_tmp3 = cadena[i * ppb + 3]
+            byte_tmp0 = ord(cadena[i * ppb])
+            byte_tmp1 = ord(cadena[i * ppb + 1])
+            byte_tmp2 = ord(cadena[i * ppb + 2])
+            byte_tmp3 = ord(cadena[i * ppb + 3])
             # p3b1->b0 p3b0->b4
             # p2b1->b1 p2b0->b5
             # p1b1->b2 p1b0->b6
             # p0b1->b3 p0b0->b7
-            byte_tmp = chr(((ord(byte_tmp3) & 0x02) >> 1) | ((ord(byte_tmp3) & 0x01) << 4) | \
-                        ((ord(byte_tmp2) & 0x02)) | ((ord(byte_tmp2) & 0x01) << 5) | \
-                        ((ord(byte_tmp1) & 0x02) << 1) | ((ord(byte_tmp1) & 0x01) << 6) | \
-                        ((ord(byte_tmp0) & 0x02) << 2) | ((ord(byte_tmp0) & 0x01) << 7))
+            byte_tmp = chr(((byte_tmp3 & 0x02) >> 1) | ((byte_tmp3 & 0x01) << 4) | \
+                        ((byte_tmp2 & 0x02)) | ((byte_tmp2 & 0x01) << 5) | \
+                        ((byte_tmp1 & 0x02) << 1) | ((byte_tmp1 & 0x01) << 6) | \
+                        ((byte_tmp0 & 0x02) << 2) | ((byte_tmp0 & 0x01) << 7))
         elif ppb == 8:
-            byte_tmp0 = cadena[i * ppb]
-            byte_tmp1 = cadena[i * ppb + 1]
-            byte_tmp2 = cadena[i * ppb + 2]
-            byte_tmp3 = cadena[i * ppb + 3]
-            byte_tmp4 = cadena[i * ppb + 4]
-            byte_tmp5 = cadena[i * ppb + 5]
-            byte_tmp6 = cadena[i * ppb + 6]
-            byte_tmp7 = cadena[i * ppb + 7]
+            byte_tmp0 = ord(cadena[i * ppb])
+            byte_tmp1 = ord(cadena[i * ppb + 1])
+            byte_tmp2 = ord(cadena[i * ppb + 2])
+            byte_tmp3 = ord(cadena[i * ppb + 3])
+            byte_tmp4 = ord(cadena[i * ppb + 4])
+            byte_tmp5 = ord(cadena[i * ppb + 5])
+            byte_tmp6 = ord(cadena[i * ppb + 6])
+            byte_tmp7 = ord(cadena[i * ppb + 7])
             # p7b0->b0 p6b0->b1
             # p5b0->b2 p4b0->b3
             # p3b0->b4 p2b0->b5
             # p1b0->b6 p0b0->b7
-            byte_tmp = chr(((ord(byte_tmp7) & 0x01)) | ((ord(byte_tmp6) & 0x01) << 1) | \
-                        ((ord(byte_tmp5) & 0x01) << 2) | ((ord(byte_tmp4) & 0x01) << 3) | \
-                        ((ord(byte_tmp3) & 0x01) << 4) | ((ord(byte_tmp2) & 0x01) << 5) | \
-                        ((ord(byte_tmp1) & 0x01) << 6) | ((ord(byte_tmp0) & 0x01) << 7))
+            byte_tmp = chr(((byte_tmp7 & 0x01)) | ((byte_tmp6 & 0x01) << 1) | \
+                        ((byte_tmp5 & 0x01) << 2) | ((byte_tmp4 & 0x01) << 3) | \
+                        ((byte_tmp3 & 0x01) << 4) | ((byte_tmp2 & 0x01) << 5) | \
+                        ((byte_tmp1 & 0x01) << 6) | ((byte_tmp0 & 0x01) << 7))
         cadena_final = cadena_final + byte_tmp
     return cadena_final
 
 def genera_volcado_de_pantalla(capa, alto, ancho_en_bytes):
     """
-    Convierte la imagen cruda a un volcado de pantalla de cpc
+    Convierte la capa de color a un volcado de pantalla de cpc
     """
     capa_tmp = [""] * 8     # Inicializamos una lista a elementos nulos
     contador = 0
@@ -137,7 +130,7 @@ def procesar_linea_comandos(linea_de_comandos):
     # definimos las opciones que soportaremos desde la línea de comandos
     lista_de_opciones = [
         make_option("-m", "--mode", action="store", type="int", dest="mode", default=0, help="Select screen mode (0, 1, 2)"),
-        make_option("-s", "--screen", action="store_true", dest="screen", default=False, help="Generate a screen dump")
+        make_option("-s", "--screen", action="store_true", dest="screen", default=False, help="Generate a CPC screen dump")
     ]
         
     parser = OptionParser(usage=uso_programa, description=descripcion_programa,
