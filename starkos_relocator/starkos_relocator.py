@@ -29,7 +29,7 @@ def procesar_linea_comandos(linea_de_comandos):
 
     # definimos las opciones que soportaremos desde la lnea de comandos
     lista_de_opciones = [
-        make_option("-a", "--address", action="store", type="string", dest="recompile_address", default="0x4000", help="Address to recompile in hex"),
+        make_option("-a", "--address", action="store", type="string", dest="recompile_address", default="0x4000", help="Address to recompile in hex (default: 0x4000)"),
 #        make_option("-o", "--output", action="store", type="string", dest="fichero_salida", default="cancion.bin", help="Name for the song file")
         make_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="Print more info")
     ]
