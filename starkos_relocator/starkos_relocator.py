@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-stk2bin
+STarKos relocator
 (c) MML, 2009
 """
 
-# Parches para que funcione en python 2.5
+# Fix for python 2.5
 from __future__ import with_statement
 
 import sys
@@ -14,7 +14,7 @@ import os           # path.exists()
 import glob         # glob() expande los patrones de los ficheros
 from optparse import make_option, OptionParser
 
-# Procesa la línea de comandos    
+# Process the command line
 def procesar_linea_comandos(linea_de_comandos):
     """
     Devuelve una tupla de dos elementos: (opciones, lista_de_ficheros).
@@ -25,7 +25,7 @@ def procesar_linea_comandos(linea_de_comandos):
 
     version_programa = "%prog v0.1"
     uso_programa = "usage: %prog [options] song1.sks son2.sks ... songX.sks"
-    descripcion_programa = "%prog recompile STarKos song files."
+    descripcion_programa = "%prog recompile a STarKos song to a new address."
 
     # definimos las opciones que soportaremos desde la lnea de comandos
     lista_de_opciones = [
