@@ -212,7 +212,7 @@ bucle_principal
 decrunch
     INCLUDE "aplib_cpc.s"
 ;    INCLUDE "exo_cpc.s"
-;    INCLUDE "pu_gbcpc.s"
+;    INCLUDE "pu_cpc.s"
 
 unlock_asic_sequence
     DEFB #FF,#00,#FF,#77,#B3,#51,#A8,#D4,#62
