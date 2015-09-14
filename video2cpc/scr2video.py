@@ -5,8 +5,8 @@
 # (c) MML, 2009
 
 # Parches para que funcione en python 2.5
-from __future__ import with_statement
-from __future__ import division
+
+
 
 import sys
 import os        # path.exists(), listdir()
@@ -100,11 +100,11 @@ def calcula_entropia_orden0(imagen):
         if (lista_frecuencias[i]):
             frecuencia = lista_frecuencias[i] / len(imagen)
             entropia += -(frecuencia * (log10(frecuencia) * 3.3219))
-    print "Longitud del fichero %d" % len(imagen)
-    print "Bits por byte: %.2f" % entropia
-    print "Porcentaje de compresión: %.2f %%" % (100 - ((entropia * 100) / 8))
-    print "Longitud teórica del fichero comprimido %d" % ((len(imagen)  * (100 - ((entropia * 100) / 8))) // 100)
-    print
+    print("Longitud del fichero %d" % len(imagen))
+    print("Bits por byte: %.2f" % entropia)
+    print("Porcentaje de compresión: %.2f %%" % (100 - ((entropia * 100) / 8)))
+    print("Longitud teórica del fichero comprimido %d" % ((len(imagen)  * (100 - ((entropia * 100) / 8))) // 100))
+    print()
 
 def calcula_entropia_orden1(imagen):
     """
@@ -121,18 +121,18 @@ def calcula_entropia_orden1(imagen):
 
     for i in range(len(imagen) // 2):
         lista_frecuencias[ord(imagen[i * 2])] [ord(imagen[(i * 2) + 1])] += 1
-        print ord(imagen[i*2]),ord(imagen[(i*2)+1]),
+        print(ord(imagen[i*2]),ord(imagen[(i*2)+1]), end=' ')
     entropia = 0.0
     for i in range(256):
         for j in range(256):
             if (lista_frecuencias[i][j]):
                 frecuencia = lista_frecuencias[i][j] / len(imagen)
                 entropia += -(frecuencia * (log10(frecuencia) * 3.3219))
-    print "Longitud del fichero %d" % len(imagen)
-    print "Bits por byte: %.2f" % entropia
-    print "Porcentaje de compresión: %.2f %%" % (100 - ((entropia * 100) / 8))
-    print "Longitud teórica del fichero comprimido %d" % ((len(imagen)  * (100 - ((entropia * 100) / 8))) // 100)
-    print
+    print("Longitud del fichero %d" % len(imagen))
+    print("Bits por byte: %.2f" % entropia)
+    print("Porcentaje de compresión: %.2f %%" % (100 - ((entropia * 100) / 8)))
+    print("Longitud teórica del fichero comprimido %d" % ((len(imagen)  * (100 - ((entropia * 100) / 8))) // 100))
+    print()
 
 def diff_paleta(paleta_vieja, paleta_nueva):
     """
@@ -141,7 +141,7 @@ def diff_paleta(paleta_vieja, paleta_nueva):
     paleta_final = ""
     for i in range(len(paleta_nueva)):
         if (i < len(paleta_vieja)):
-            if (paleta_nueva[i] <> paleta_vieja[i]):
+            if (paleta_nueva[i] != paleta_vieja[i]):
                 paleta_final += chr(i) + paleta_nueva[i]
         else:
             paleta_final += chr(i) + paleta_nueva[i]
@@ -172,7 +172,7 @@ def comprime_scanline(scanline_vieja, scanline_nueva): #, dir_scanline):
                     #print "REPEAT pendiente: %d" % contador_repeticiones,
                     scanline_final += chr(CMP_REPEAT + contador_repeticiones) + byte_anterior
                     contador_repeticiones = 0
-                elif (i <> 0) and (byte_anterior <> scanline_vieja[i - 1]):
+                elif (i != 0) and (byte_anterior != scanline_vieja[i - 1]):
                     cadena_a_copiar += byte_anterior    # Hay que añadir el byte anterior
                     #print "COPY pendiente: %d" % (len(cadena_a_copiar)),
                     scanline_final += chr(CMP_COPY + len(cadena_a_copiar) - 1) + cadena_a_copiar
@@ -185,7 +185,7 @@ def comprime_scanline(scanline_vieja, scanline_nueva): #, dir_scanline):
                 if (i == (len(scanline_nueva) - 1)):    # Hay que añadir el byte anterior
                     cadena_a_copiar += byte_actual
             else:
-                if (byte_actual <> byte_anterior):
+                if (byte_actual != byte_anterior):
                     if (contador_repeticiones):
                         #print "REPEAT: %d" % contador_repeticiones,
                         scanline_final += chr(CMP_REPEAT + contador_repeticiones) + byte_anterior
@@ -258,12 +258,12 @@ def optimiza_video(lista_frames, pack_mode, scanlines): #, lista_scanlines):
                 fin_bucle = True
             k += 1
         # Si la pantalla es igual a la anterior lo reducimos a cambios de paleta, CMP_END_SCREEN
-        if (cnt <> (alto_pantalla//alto_scanlines)):
+        if (cnt != (alto_pantalla//alto_scanlines)):
             cnt -= 2
         else:
             cnt -= 1
         imagen_tmp = imagen_tmp[ : longitud_imagen_tmp - cnt]
-        print "Imagen: %d" % len(imagen_tmp)
+        print("Imagen: %d" % len(imagen_tmp))
         lista_frames[i] = diff_paleta(paleta_vieja, paleta_nueva) + imagen_tmp + chr(CMP_END_SCREEN)
         paleta_vieja = paleta_nueva
         if (i % 2):
@@ -329,11 +329,11 @@ def main(linea_de_comandos=None):
     # opciones.mode contiene el modo de resolución del cpc
 
     # Obtenemos el número de imagenes de las que consta el video
-    print u"El video consta de %d imagenes." % len(lista_ficheros)
+    print("El video consta de %d imagenes." % len(lista_ficheros))
 
     # Obtenemos el ancho y el alto del video
     ancho_imagen, alto_imagen = ANCHO_VIDEO, ALTO_VIDEO
-    print u"Las imagenes del video son de %d x %d pixels." % (ancho_imagen, alto_imagen)
+    print("Las imagenes del video son de %d x %d pixels." % (ancho_imagen, alto_imagen))
 
     # Inicializamos las constantes de los marcadores del compresor
     ancho_en_bytes_imagen = ancho_imagen // pixels_por_byte[opciones.mode]
@@ -346,7 +346,7 @@ def main(linea_de_comandos=None):
         CMP_SKIP = ancho_en_bytes_imagen
         CMP_REPEAT = ancho_en_bytes_imagen * 2
     else:
-        print u"ERROR: Las imagenes son muy anchas y necesitas activar el modo de 16 bits para el compresor (TODO)."
+        print("ERROR: Las imagenes son muy anchas y necesitas activar el modo de 16 bits para el compresor (TODO).")
         return 1    # Salimos del programa con un error
     # Generamos los comienzos de los scanlines (old)
     lista_scanlines_old = []
@@ -370,7 +370,7 @@ def main(linea_de_comandos=None):
     lista_frames = []
     
     for nombre_imagen in lista_ficheros:
-        print u"Abriendo el fichero de imagen: " + nombre_imagen
+        print("Abriendo el fichero de imagen: " + nombre_imagen)
 
         imagen_scr = ""
         with open(nombre_imagen, "rb") as f:    # Abrimos el fichero    
@@ -382,7 +382,7 @@ def main(linea_de_comandos=None):
             lista_frames.append(convierte_frame(imagen_scr, ancho_imagen // pixels_por_byte[opciones.mode], alto_imagen, lista_scanlines_old))
             
         else:
-            print u"ERROR: Se produjo un error con el fichero %s." % nombre_imagen
+            print("ERROR: Se produjo un error con el fichero %s." % nombre_imagen)
             return 1    # Salimos del programa con un error
         
     

@@ -7,7 +7,7 @@ STarKos relocator
 """
 
 # Fix for python 2.5
-from __future__ import with_statement
+
 
 import sys
 import os           # path.exists()
@@ -67,19 +67,19 @@ def main(linea_de_comandos=None):
     for nombre_fichero in lista_ficheros:
         
         if not(os.path.exists(nombre_fichero)):
-            print u"The file %s do not exist." % nombre_fichero
+            print("The file %s do not exist." % nombre_fichero)
             continue
 
         # Abrimos el fichero            
         fichero_tmp = ""
-        print u"Opening the file: %s" % nombre_fichero
+        print("Opening the file: %s" % nombre_fichero)
         with open(nombre_fichero,"rb") as fichero:
             fichero_tmp = fichero.read()
 
         # Comprobamos si el fichero tenía una cabecera de Amsdos
         usa_cabecera_amsdos = fichero_tmp[128:132] == "SK10"
         if not ((fichero_tmp[0:4] == "SK10") or usa_cabecera_amsdos):
-            print "The file %s is not a valid STarKos song." % nombre_fichero
+            print("The file %s is not a valid STarKos song." % nombre_fichero)
             continue
 
         # Si usa cabecera de amsdos, extraemos la longitud y recortamos el fichero a dicho tamaño
@@ -90,10 +90,10 @@ def main(linea_de_comandos=None):
         # Comprobamos que el fichero no haya sido ya recompilado
         original_address = ord(fichero_tmp[5]) * 256 + ord(fichero_tmp[4])
         if opciones.verbose:
-            print "Original address: %s" % hex(original_address)
-        print "Original address: %s" % hex(original_address)
+            print("Original address: %s" % hex(original_address))
+        print("Original address: %s" % hex(original_address))
         if original_address == opciones.recompile_address:
-            print "The file %s already use the address pass how parameter." % nombre_fichero
+            print("The file %s already use the address pass how parameter." % nombre_fichero)
             continue
 
         # Convertimos la cadena a una lista, para facilitarnos las modificaciones
@@ -106,15 +106,15 @@ def main(linea_de_comandos=None):
         # Obtenemos el offset entre ambas direcciones
         offset = opciones.recompile_address - original_address 
         if opciones.verbose:
-            print "Offset: %s" % hex(offset)
+            print("Offset: %s" % hex(offset))
 
         # Cambiamos el offset relativo de algunos punteros de uso interno
         if opciones.verbose:
-            print "Change internal pointers."
+            print("Change internal pointers.")
         for i in range(9, 9 + 8 * 2, 2):
             if opciones.verbose:
-                print hex(i),hex(ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256), \
-                    hex(ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256 + offset)
+                print(hex(i),hex(ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256), \
+                    hex(ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256 + offset))
             offset_tmp = ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256 + offset
             cancion_tmp[i] = chr(offset_tmp % 256)
             cancion_tmp[i + 1] = chr(offset_tmp // 256)
@@ -124,16 +124,16 @@ def main(linea_de_comandos=None):
         STRACKSTAB = ord(fichero_tmp[13]) + ord(fichero_tmp[14]) * 256 
         INSTRS = ord(fichero_tmp[15]) + ord(fichero_tmp[16]) * 256 
         if opciones.verbose:
-            print "TRACKS: %s, STRACKS: %s, INSTRS: %s" % (hex(TRACKSTAB), hex(STRACKSTAB), hex(INSTRS))
+            print("TRACKS: %s, STRACKS: %s, INSTRS: %s" % (hex(TRACKSTAB), hex(STRACKSTAB), hex(INSTRS)))
 
         # Cambiamos la tabla de TRACKS
         origen_tmp = TRACKSTAB - original_address
         longitud_tmp = STRACKSTAB - TRACKSTAB
-        print "TRACKS dir: %s off: %s len: %s" % (hex(TRACKSTAB), hex(origen_tmp), hex(longitud_tmp))
+        print("TRACKS dir: %s off: %s len: %s" % (hex(TRACKSTAB), hex(origen_tmp), hex(longitud_tmp)))
         for i in range(origen_tmp, origen_tmp + longitud_tmp, 2):
             if opciones.verbose:
-                print hex(i), hex(ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256), \
-                    hex(ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256 + offset)
+                print(hex(i), hex(ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256), \
+                    hex(ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256 + offset))
             offset_tmp = ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256 + offset
             cancion_tmp[i] = chr(offset_tmp % 256)
             cancion_tmp[i + 1] = chr(offset_tmp // 256)
@@ -141,21 +141,21 @@ def main(linea_de_comandos=None):
         # Cambiamos la tabla de STRACKS
         origen_tmp = STRACKSTAB - original_address
         longitud_tmp = INSTRS - STRACKSTAB
-        print "STRACKS dir: %s off: %s len: %s" % (hex(STRACKSTAB), hex(origen_tmp), hex(longitud_tmp))
+        print("STRACKS dir: %s off: %s len: %s" % (hex(STRACKSTAB), hex(origen_tmp), hex(longitud_tmp)))
         contador_tmp = origen_tmp
-        while (contador_tmp <> origen_tmp + longitud_tmp):
+        while (contador_tmp != origen_tmp + longitud_tmp):
             if opciones.verbose:
-                print "Contador:", hex(contador_tmp)
+                print("Contador:", hex(contador_tmp))
             num_elementos_tmp = ord(fichero_tmp[contador_tmp])
             num_elementos_tmp = (num_elementos_tmp >> 1 if num_elementos_tmp & 1 else 0)
             contador_tmp += 1            
 
             for j in range(num_elementos_tmp + 1):
                 if opciones.verbose:
-                    print "Contador:", hex(contador_tmp),
+                    print("Contador:", hex(contador_tmp), end=' ')
                 offset_tmp = ord(fichero_tmp[contador_tmp]) + ord(fichero_tmp[contador_tmp + 1]) * 256 + offset
                 if opciones.verbose:
-                    print hex(offset_tmp)
+                    print(hex(offset_tmp))
                 cancion_tmp[contador_tmp] = chr(offset_tmp % 256)
                 cancion_tmp[contador_tmp + 1] = chr(offset_tmp // 256)
                 contador_tmp += 2
@@ -163,11 +163,11 @@ def main(linea_de_comandos=None):
         # Cambiamos la tabla de INSTRS
         origen_tmp = INSTRS - original_address
         longitud_tmp = ord(fichero_tmp[origen_tmp]) + ord(fichero_tmp[origen_tmp + 1]) * 256 - INSTRS
-        print "INSTRS dir: %s off: %s len: %s" % (hex(INSTRS), hex(origen_tmp), hex(longitud_tmp))
+        print("INSTRS dir: %s off: %s len: %s" % (hex(INSTRS), hex(origen_tmp), hex(longitud_tmp)))
         for i in range(origen_tmp, origen_tmp + longitud_tmp, 2):
             if opciones.verbose:
-                print hex(i), hex(ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256), \
-                    hex(ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256 + offset)
+                print(hex(i), hex(ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256), \
+                    hex(ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256 + offset))
             offset_tmp = ord(fichero_tmp[i]) + ord(fichero_tmp[i + 1]) * 256 + offset
             cancion_tmp[i] = chr(offset_tmp % 256)
             cancion_tmp[i + 1] = chr(offset_tmp // 256)
@@ -185,12 +185,12 @@ def main(linea_de_comandos=None):
                 cancion_tmp[offset_inst_tmp] = chr(offset_tmp % 256)
                 cancion_tmp[offset_inst_tmp + 1] = chr(offset_tmp // 256)
                 if opciones.verbose:
-                    print "off: %s dir: %s" % (hex(offset_inst_tmp), hex(offset_tmp))
+                    print("off: %s dir: %s" % (hex(offset_inst_tmp), hex(offset_tmp)))
                 offset_inst_tmp += 2
 
         # Grabamos el fichero resultante
         nombre_fichero = nombre_fichero.lower().replace(".sks", ".bin") # + ".bin"
-        print u"Saving the file: %s" % nombre_fichero
+        print("Saving the file: %s" % nombre_fichero)
         with open(nombre_fichero,"wb") as fichero:
             fichero.write("".join(cancion_tmp))
 

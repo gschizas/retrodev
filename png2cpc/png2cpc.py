@@ -15,7 +15,7 @@ png2cpc
 # - Añadir el remapeado de la paleta externa a la interna.
 
 # Parches para que funcione en python 2.5
-from __future__ import with_statement
+
 
 import sys
 import os        # path.exists()
@@ -157,7 +157,7 @@ def extrae_paleta(fichero_imagen, modo_imagen):
                     paleta_final[paleta_aux] = (i, i)
                     paleta_cpc_valida = False
     else:
-        print u"Modo no soportado."
+        print("Modo no soportado.")
 
     return paleta_final, paleta_cpc_valida
 
@@ -185,12 +185,12 @@ def extrae_imagen(fichero_imagen, modo_imagen, ancho_imagen, alto_imagen, paleta
 #            for i in range(alto_imagen * ancho_imagen)]
     elif (modo_imagen != "P"):
         imagen_tmp = []
-        print u"Modo no soportado."
+        print("Modo no soportado.")
 
 #    if indice_paleta:
 #        imagen_tmp = [indice_paleta + i for i in imagen_tmp]
 
-    imagen_tmp = map(chr, imagen_tmp)
+    imagen_tmp = list(map(chr, imagen_tmp))
 
     # FIX: Hay un problema en la inversión, cuando indice_paleta > 0
     imagen_final = []
@@ -200,7 +200,7 @@ def extrae_imagen(fichero_imagen, modo_imagen, ancho_imagen, alto_imagen, paleta
             # Inversión de los graficos
 #            for j in reversed(range(ancho_imagen)):
 #                imagen_final += imagen_tmp[i + j]
-            for j in reversed(range(ancho_imagen // ai_ppb)):
+            for j in reversed(list(range(ancho_imagen // ai_ppb))):
 #                print len(imagen_tmp[i + j * ai_ppb: i + (j + 1) * ai_ppb]),
                 imagen_final += imagen_tmp[i + j * ai_ppb: i + (j + 1) * ai_ppb]
     else:
@@ -235,7 +235,7 @@ def extrae_patrones(mapa):
     tiles_final = {}
     for i in range(len(mapa)):
         hash_tmp = hashlib.sha1(mapa[i]).digest()
-        if not (tiles_final.has_key(hash_tmp)):
+        if not (hash_tmp in tiles_final):
             tiles_final[hash_tmp] = (mapa[i], len(tiles_final), 1)
         else:    # Almacenamos el número de repeticiones
             tiles_final[hash_tmp] = (tiles_final[hash_tmp][0], tiles_final[hash_tmp][1], tiles_final[hash_tmp][2] + 1)
@@ -257,7 +257,7 @@ def optimiza_paleta(paleta):
     """
     paleta_final = [""] * len(paleta)
 
-    for i in paleta.keys():
+    for i in list(paleta.keys()):
         paleta_final[paleta[i][0]] = chr(paleta[i][1])
     return paleta_final
     
@@ -276,7 +276,7 @@ def optimiza_patrones(patrones, ppb):
     """
     patrones_final = [""] * len(patrones)
 
-    for i in patrones.keys():
+    for i in list(patrones.keys()):
         patrones_final[patrones[i][1]] = convierte_graficos(patrones[i][0], ppb)
     return patrones_final
 
@@ -286,7 +286,7 @@ def optimiza_casillas(casillas):
     """
     casillas_final = [""] * len(casillas)
 
-    for i in casillas.keys():
+    for i in list(casillas.keys()):
         casillas_final[casillas[i][1]] = casillas[i][0]
     return casillas_final
 
@@ -501,17 +501,17 @@ def main(linea_de_comandos=None):
     for nombre_imagen in lista_ficheros:
         
         if not(os.path.exists(nombre_imagen)):
-            print u"El fichero %s no existe." % nombre_imagen
+            print("El fichero %s no existe." % nombre_imagen)
             continue
             
-        print u"Abriendo el fichero de imagen: " + nombre_imagen
+        print("Abriendo el fichero de imagen: " + nombre_imagen)
         fichero_imagen = Image.open(nombre_imagen)
         
         # Dimensiones de la imagen
         ancho_imagen, alto_imagen = fichero_imagen.size
-        print u"Tamaño en pixels de la imagen: %d x %d" % (ancho_imagen, alto_imagen)
+        print("Tamaño en pixels de la imagen: %d x %d" % (ancho_imagen, alto_imagen))
         ancho, alto = ancho_imagen // opciones.ancho_patron, alto_imagen // opciones.alto_patron
-        print u"Tamaño en patrones de la imagen: %d x %d" % (ancho, alto)
+        print("Tamaño en patrones de la imagen: %d x %d" % (ancho, alto))
 
         # Características de la imagen
         modo_imagen = fichero_imagen.mode
@@ -532,13 +532,13 @@ def main(linea_de_comandos=None):
 #                    paleta = f.read()
 #                    paleta, paleta_cpc_valida = convierte_paleta_externa(paleta)
         
-        print u"Número de colores: %d" % len(paleta)
+        print("Número de colores: %d" % len(paleta))
 
         if (opciones.palette and (not opciones.executable)):
             if (paleta_cpc_valida):
                 guarda_archivo((nombre_imagen.lower()).replace(".png",".pal"), "".join(optimiza_paleta(paleta)))
             else:
-                print u"El fichero %s no tiene una paleta de cpc válida." % nombre_imagen
+                print("El fichero %s no tiene una paleta de cpc válida." % nombre_imagen)
 
         if not opciones.sprite:
             fichero_imagen.load()    # Cargamos el fichero en memoria
@@ -550,21 +550,21 @@ def main(linea_de_comandos=None):
                         executable = construye_ejecutable(imagen, optimiza_paleta(paleta), ancho_imagen, alto_imagen, opciones.mode)
                         guarda_archivo((nombre_imagen.lower()).replace(".png",".bin"), "".join(executable)) 
                     else:
-                        print u"El fichero %s no tiene una paleta de cpc válida." % nombre_imagen
+                        print("El fichero %s no tiene una paleta de cpc válida." % nombre_imagen)
                 else:
                     guarda_archivo((nombre_imagen.lower()).replace(".png",".scr"), imagen) 
             else:
                 mapa = extrae_mapa(imagen, opciones.ancho_patron, opciones.alto_patron, ancho_imagen, alto_imagen)
 
-                print u"Tamaño del mapa: %d bytes" % len(mapa)
+                print("Tamaño del mapa: %d bytes" % len(mapa))
                 
                 patrones = extrae_patrones(mapa)
-                print u"Número de patrones: %d" % len(patrones)
-                print u"Tamaño del patrón: %d bytes" % (opciones.alto_patron * opciones.ancho_patron // \
-                    pixels_por_byte[opciones.mode])
+                print("Número de patrones: %d" % len(patrones))
+                print("Tamaño del patrón: %d bytes" % (opciones.alto_patron * opciones.ancho_patron // \
+                    pixels_por_byte[opciones.mode]))
                 
                 if (len(patrones) > 256):
-                    print u"Hay más de 256 patrones, usa --force si es lo que deseas. (FORCE no está implementado aún)"
+                    print("Hay más de 256 patrones, usa --force si es lo que deseas. (FORCE no está implementado aún)")
                     continue
                 if opciones.map:
                     mapa = optimiza_mapa(mapa, patrones)
@@ -572,10 +572,10 @@ def main(linea_de_comandos=None):
                         guarda_archivo((nombre_imagen.lower()).replace(".png",".map"), "".join(mapa)) 
                     else:
                         mapa = extrae_mapa(mapa, opciones.ancho_casilla, opciones.alto_casilla, ancho, alto)
-                        print u"Tamaño del mapa con casillas: %d bytes" % len(mapa)
+                        print("Tamaño del mapa con casillas: %d bytes" % len(mapa))
                         casillas = extrae_patrones(mapa)
-                        print u"Número de casillas: %d" % len(casillas)
-                        print u"Tamaño de la casilla: %d bytes" % (opciones.alto_casilla * opciones.ancho_casilla)
+                        print("Número de casillas: %d" % len(casillas))
+                        print("Tamaño de la casilla: %d bytes" % (opciones.alto_casilla * opciones.ancho_casilla))
                         guarda_archivo((nombre_imagen.lower()).replace(".png",".map"), "".join(optimiza_mapa(mapa, casillas)))
                         guarda_archivo((nombre_imagen.lower()).replace(".png",".lst"), "".join(optimiza_casillas(casillas)))  
                 if opciones.tile: 

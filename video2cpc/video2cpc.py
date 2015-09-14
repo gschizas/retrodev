@@ -11,7 +11,7 @@
 # Busca los *** MODIFICAME ***
 
 # Parches para que funcione en python 2.5
-from __future__ import with_statement
+
 
 import sys
 import os		# path.exists(), listdir()
@@ -75,7 +75,7 @@ def extrae_paleta(imagen):
 	paleta_final = {}
 	contador = 0
 	for i in range(len(imagen)):
-		if not(paleta_final.has_key(imagen[i])):
+		if not(imagen[i] in paleta_final):
 			paleta_final[imagen[i]] = (contador, paleta_cpc[imagen[i]])
 			contador += 1
 	if (len(paleta_final) > 16):	# *** MODIFICAME ***
@@ -89,7 +89,7 @@ def aproxima_color(rojo, verde, azul):
 	"""
 	color_aproximado = 	'\x00\x00\x00'
 	minimo = 255 * 3
-	for i in paleta_cpc.keys():
+	for i in list(paleta_cpc.keys()):
 		# Algoritmos de cuantización del color:
 		
 		# Distancia Euclidiana
@@ -117,7 +117,7 @@ def extrae_imagen(fichero_imagen, modo_imagen, ancho_imagen, alto_imagen): #, pa
 		pass	# Controlar el modo de paleta
 	else:
 		imagen_final = []
-		print u"Modo no soportado."
+		print("Modo no soportado.")
 	return imagen_final
 
 def convierte_paleta(paleta):
@@ -127,7 +127,7 @@ def convierte_paleta(paleta):
 	paleta_final = []
 	for i in range(len(paleta)):
 		paleta_final.append("")
-	for i in paleta.keys():
+	for i in list(paleta.keys()):
 		paleta_final[paleta[i][0]] = chr(paleta[i][1])
 	return paleta_final
 
@@ -195,7 +195,7 @@ def diff_paleta(paleta_vieja, paleta_nueva):
 	paleta_final = ""
 	for i in range(len(paleta_nueva)):
 		if (i < len(paleta_vieja)):
-			if (paleta_nueva[i] <> paleta_vieja[i]):
+			if (paleta_nueva[i] != paleta_vieja[i]):
 				paleta_final += chr(i) + paleta_nueva[i]
 		else:
 			paleta_final += chr(i) + paleta_nueva[i]
@@ -226,7 +226,7 @@ def comprime_scanline(scanline_vieja, scanline_nueva, dir_scanline):
 					#print "REPEAT pendiente: %d" % contador_repeticiones,
 					scanline_final += chr(CMP_REPEAT + contador_repeticiones) + byte_anterior
 					contador_repeticiones = 0
-				elif (i <> 0) and (byte_anterior <> scanline_vieja[i - 1]):
+				elif (i != 0) and (byte_anterior != scanline_vieja[i - 1]):
 					cadena_a_copiar += byte_anterior	# Hay que añadir el byte anterior
 					#print "COPY pendiente: %d" % (len(cadena_a_copiar)),
 					scanline_final += chr(CMP_COPY + len(cadena_a_copiar) - 1) + cadena_a_copiar
@@ -239,7 +239,7 @@ def comprime_scanline(scanline_vieja, scanline_nueva, dir_scanline):
 				if (i == (len(scanline_nueva) - 1)):	# Hay que añadir el byte anterior
 					cadena_a_copiar += byte_actual
 			else:
-				if (byte_actual <> byte_anterior):
+				if (byte_actual != byte_anterior):
 					if (contador_repeticiones):
 						#print "REPEAT: %d" % contador_repeticiones,
 						scanline_final += chr(CMP_REPEAT + contador_repeticiones) + byte_anterior
@@ -296,20 +296,20 @@ def optimiza_video(lista_frames, pack_mode, scanlines, lista_scanlines):
 			scanline_nueva = imagen_nueva[contador : contador + ancho_bytes_scanline]
 			imagen_tmp += comprime_scanline(scanline_vieja, scanline_nueva, lista_scanlines[j][0])
 			contador += ancho_bytes_scanline
-		print "Imagen: %d" % len(imagen_tmp)
+		print("Imagen: %d" % len(imagen_tmp))
 		lista_frames[i] = diff_paleta(paleta_vieja, paleta_nueva) + imagen_tmp + chr(CMP_END_SCREEN)
 		paleta_vieja = paleta_nueva
 		imagen_vieja = imagen_nueva
 	return lista_frames
 	
 def descomprime_scanline(scanline_original, scanline_comprimido):
-	print "D: %d C: %d" % (len(scanline_original), len(scanline_comprimido))
+	print("D: %d C: %d" % (len(scanline_original), len(scanline_comprimido)))
 	for i in scanline_original:
-		print "%x" % ord(i),
-	print ""
+		print("%x" % ord(i), end=' ')
+	print("")
 	for i in scanline_comprimido:
-		print "%x" % ord(i),
-	print ""
+		print("%x" % ord(i), end=' ')
+	print("")
 	scanline_tmp = ""
 	estado = CMP_END_VIDEO
 	cnt_scanlines = 0
@@ -323,17 +323,17 @@ def descomprime_scanline(scanline_original, scanline_comprimido):
 			if (CMP_COPY <= i < CMP_SKIP):
 				estado = CMP_COPY
 				cnt = i - CMP_COPY + 1
-				print "COPY: %d" % cnt,
+				print("COPY: %d" % cnt, end=' ')
 			elif (CMP_SKIP <= i < CMP_REPEAT):
 				cnt = 0
 				scanline_tmp += scanline_original[contador_global : contador_global + i - CMP_SKIP + 1]
 				contador_global += i - CMP_SKIP + 1
-				print "SKIP: %d" % (i - CMP_SKIP + 1),
+				print("SKIP: %d" % (i - CMP_SKIP + 1), end=' ')
 				#print "CG: %d" % contador_global,
 			elif (CMP_REPEAT <= i < CMP_REPEAT + len(scanline_original)):
 				estado = CMP_REPEAT
 				cnt = i - CMP_REPEAT + 1
-				print "REPEAT: %d" % cnt,
+				print("REPEAT: %d" % cnt, end=' ')
 			elif (i == CMP_END_SCANLINE):
 				estado = CMP_END_VIDEO
 		elif (estado == CMP_COPY):
@@ -350,16 +350,16 @@ def descomprime_scanline(scanline_original, scanline_comprimido):
 			
 		if not(cnt):
 			estado = CMP_END_VIDEO
-	print "Contador global %d" % contador_global
+	print("Contador global %d" % contador_global)
 	#print ""
 	for i in scanline_tmp:
-		print "%x" % ord(i),
-	print ""
+		print("%x" % ord(i), end=' ')
+	print("")
 	if (scanline_original == scanline_tmp):
-		print "CORRECTA"
+		print("CORRECTA")
 	else:
-		print "ERROR"
-	print ""
+		print("ERROR")
+	print("")
 
 # Funciones para guardar en disco los datos convertidos
 def guarda_archivo(nombre, contenido):
@@ -417,12 +417,12 @@ def main(linea_de_comandos=None):
 
 	# Obtenemos el número de imagenes de las que consta el video
 	numero_frames = len(lista_ficheros)
-	print u"El video consta de %d imagenes." % numero_frames
+	print("El video consta de %d imagenes." % numero_frames)
 
 	# Obtenemos el ancho y el alto del video
 	fichero_frame = Image.open(lista_ficheros[0])
 	ancho_frame, alto_frame = fichero_frame.size
-	print u"Las imagenes del video son de %d x %d pixels." % (ancho_frame, alto_frame)
+	print("Las imagenes del video son de %d x %d pixels." % (ancho_frame, alto_frame))
 
 	# Inicializamos las constantes de los marcadores del compresor
 	ancho_en_bytes_frame = ancho_frame // pixels_por_byte[opciones.mode]
@@ -435,7 +435,7 @@ def main(linea_de_comandos=None):
 		CMP_SKIP = ancho_en_bytes_frame
 		CMP_REPEAT = ancho_en_bytes_frame * 2
 	else:
-		print u"ERROR: Las imagenes son muy anchas y necesitas activar el modo de 16 bits para el compresor (TODO)."
+		print("ERROR: Las imagenes son muy anchas y necesitas activar el modo de 16 bits para el compresor (TODO).")
 		return 1	# Salimos del programa con un error
 	# Generamos los comienzos y finales de los scanlines
 	lista_scanlines = []
@@ -453,16 +453,16 @@ def main(linea_de_comandos=None):
 	for nombre_imagen in lista_ficheros:
 		# Comprobamos la existencia de los ficheros
 		if not(os.path.exists(nombre_imagen)):
-			print u"ERROR: El fichero %s no existe." % nombre_imagen
+			print("ERROR: El fichero %s no existe." % nombre_imagen)
 			return 1	# Salimos del programa con un error
 			
-		print u"Abriendo el fichero de imagen: " + nombre_imagen
+		print("Abriendo el fichero de imagen: " + nombre_imagen)
 		fichero_imagen = Image.open(nombre_imagen)
 		
 		# Comprobamos las dimensiones de los frames
 		ancho_imagen, alto_imagen = fichero_imagen.size
 		if not((ancho_imagen == ancho_frame) and (alto_imagen == alto_frame)):
-			print u"ERROR: El fichero %s no posee las dimensiones del resto de imagenes del video." % nombre_imagen
+			print("ERROR: El fichero %s no posee las dimensiones del resto de imagenes del video." % nombre_imagen)
 			return 1	# Salimos del programa con un error
 
 		# Características de la imagen

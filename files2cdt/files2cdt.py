@@ -27,9 +27,9 @@ files2cdt
 # and 25 microseconds (A) for SPEED WRITE 1, the values are given as 107 microseconds and 50 microseconds 
 # respectively.
 
-from __future__ import with_statement   # para usar la instrucción with en python 2.5
+   # para usar la instrucción with en python 2.5
 
-from __future__ import division         # para tener divisiones de reales en python2.5
+         # para tener divisiones de reales en python2.5
 
 import sys
 import glob             # glob() expande los patrones de los ficheros en windows
@@ -359,7 +359,7 @@ def lee_fichero_con_amsdos(nombre_fichero):
     cabecera = ""
     datos = ""
     with open(nombre_fichero, "r") as fichero:
-        print u"Opening file: " + path.basename(nombre_fichero)
+        print("Opening file: " + path.basename(nombre_fichero))
         cabecera = fichero.read(LONGITUD_CABECERA_AMSDOS)
         datos = fichero.read()
 
@@ -389,8 +389,8 @@ def genera_bloques_turbo(datos, baud_rate): # , tipo_turbo):
     # 3.500.000 T-estados del spectrum / 3.939.600 T-estados del cpc
     pulso_de_bit_cero = int(round(((1e6 * 35) / (39 * 3 * baud_rate)) * 4))
     pulso_de_bit_uno = pulso_de_bit_cero * 2        # bits a 1 = (bits a 0) * 2
-    print "Bit a 0: %d t-states %d ms" % (pulso_de_bit_cero, pulso_de_bit_cero // 4)
-    print "Bit a 1: %d t-states %d ms" % (pulso_de_bit_uno, pulso_de_bit_uno // 4)
+    print("Bit a 0: %d t-states %d ms" % (pulso_de_bit_cero, pulso_de_bit_cero // 4))
+    print("Bit a 1: %d t-states %d ms" % (pulso_de_bit_uno, pulso_de_bit_uno // 4))
 
     cadena_cero = chr(pulso_de_bit_cero % 256) + chr(pulso_de_bit_cero // 256)
     cadena_uno = chr(pulso_de_bit_uno % 256) + chr(pulso_de_bit_uno // 256)
@@ -416,7 +416,7 @@ def lee_fichero_sin_amsdos(nombre_fichero):
     """
     datos = ""
     with open(nombre_fichero, "r") as fichero:
-        print u"Opening file: " + path.basename(nombre_fichero)
+        print("Opening file: " + path.basename(nombre_fichero))
         datos = fichero.read()
     return datos
 

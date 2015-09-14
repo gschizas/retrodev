@@ -9,7 +9,7 @@ png2plus
 # TODO: Integrar la compresión.
 
 # Parches para que funcione en python 2.5
-from __future__ import with_statement
+
 
 import sys
 import os           # path.exists()
@@ -34,7 +34,7 @@ def extrae_imagen(fichero_imagen, modo_imagen, ancho_imagen, alto_imagen):
             capa_verde += chr(imagen_tmp[i][1] >> 4)
             capa_azul += chr(imagen_tmp[i][2] >> 4)
     else:
-        print u"Modo no soportado."
+        print("Modo no soportado.")
 
     return capa_rojo, capa_verde, capa_azul
 
@@ -163,10 +163,10 @@ def main(linea_de_comandos=None):
     # Procesamos los ficheros
     for nombre_imagen in lista_ficheros:
         if not(os.path.exists(nombre_imagen)):
-            print u"El fichero %s no existe." % nombre_imagen
+            print("El fichero %s no existe." % nombre_imagen)
             continue
             
-        print u"Abriendo el fichero de imagen: " + nombre_imagen
+        print("Abriendo el fichero de imagen: " + nombre_imagen)
         fichero_imagen = Image.open(nombre_imagen)
 
         # Obtenemos el nombre del fichero
@@ -190,7 +190,7 @@ def main(linea_de_comandos=None):
                 capa = convierte_graficos(capa, pixels_por_byte[opciones.mode])
                 if opciones.screen:
                     capa = genera_volcado_de_pantalla(capa, alto_imagen, ancho_imagen // pixels_por_byte[opciones.mode])
-                guarda_archivo(nombre_fichero + "." + extensiones.next(), capa) 
+                guarda_archivo(nombre_fichero + "." + next(extensiones), capa) 
 
     return 0    # EXIT_SUCCESS
 
